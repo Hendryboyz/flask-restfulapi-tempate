@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+  ApiImage:
+    Type: String
+
+Resources:
+  ECSCluster:
+    Type: AWS::ECS::cluster
+    Properties:
+      ClusterName: !Ref EnvironmentName
+  
+  TaskDefinition:
+    Type:
+    DependsOn:
+    Properties:
+      Family: 'py-iam-api'
+      NetworkMode: awsvpc
+      RequireCompatibilities:
+        - FARGATE
+      Cpu: 512
+      Memory: 1GB
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      TaskRoleArn: !Ref TaskRole
+      ContainerDefinition:
+        - Name: web-server
+          Image: nginx:latest
+          PortMappings:
+            - ContainerPort: 80
+          HealthCheck:
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref WebServerLogGroup
+              awslogs-stream-prefix: ecs-web
+        - Name: api
+          Image: !Ref ApiImage
+          DependsOn:
+            - ContainerName: web-server
+              Condition: HEALTHY
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref WebServerLogGroup
+              awslogs-stream-prefix: ecs-api
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+  TaskRole:
+    Type: AWS::IAM::Role
+
+  WebServerLogGroup:
+    Type: AWS::Logs::LogGroup
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
