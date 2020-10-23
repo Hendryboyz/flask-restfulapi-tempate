@@ -1,0 +1,24 @@
+{
+  "family": "py-iam-api",
+  "containerDefinitions": [
+    {
+      "name": "web-server",
+      "image": "nginx:latest",
+      "portMappings": [
+        {
+          "containerPort": 80
+        }
+      ]
+    },
+    {
+      "name": "api",
+      "image": "",
+      "dependsOn": [
+        {
+          "containerName": "web-server",
+          "condition": "HEALTHY"
+        }
+      ]
+    }
+  ]
+}

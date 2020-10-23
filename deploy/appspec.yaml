@@ -1,0 +1,15 @@
+version: 0.0
+Resources:
+  - TargetService:
+    Type: AWS::ECS::Service
+    Properties:
+      TaskDefinition: "task-definition-ARN"
+      LoadBalancerInfo:
+        ContainerName:
+        ContainerPort: 
+Hooks:
+# - BeforeInstall: ""
+# - AfterInstall: ""
+# - AfterAllowTestTraffic: ""
+# - BeforeAllowTraffic: ""
+# - AfterAllowTraffic: ""
